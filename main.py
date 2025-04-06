@@ -4,6 +4,7 @@ from sahi import AutoDetectionModel
 from sahi.predict import get_prediction, get_sliced_prediction
 from sahi.utils.file import download_from_url
 import json
+import csv
 
 # Step 1: Download YOLOv8 model weights
 yolov8_model_path = "models/yolov8s.pt"
@@ -62,3 +63,25 @@ predictions_json = json.dumps(predictions_dict, indent=4)
 
 # Step 6: Print the JSON string
 print(predictions_json) 
+# Step 7: Export predictions to a CSV file
+csv_file_path = "predictions.csv"
+with open(csv_file_path, mode="w", newline="") as csv_file:
+    csv_writer = csv.writer(csv_file)
+    # Write header
+    csv_writer.writerow(["category_id", "category_name", "score", "x_min", "y_min", "x_max", "y_max", "width", "height"])
+    # Write prediction rows
+    for obj in predictions_dict:
+        bbox = obj["bounding_box"]
+        csv_writer.writerow([
+            obj["category_id"],
+            obj["category_name"],
+            obj["score"],
+            bbox["x_min"],
+            bbox["y_min"],
+            bbox["x_max"],
+            bbox["y_max"],
+            bbox["width"],
+            bbox["height"]
+        ])
+
+print(f"Predictions exported to {csv_file_path}")
